@@ -30,17 +30,19 @@ function _c() {
         -a|--add)
             bookmarks="$(c --bash_completion add)"
             ;;
-        -l|--list|-L|--list_all|-c|--save_current|-h|--help)
+        -l|--list|-L|--list_all|-h|--help)
             ;;
-        -d|--delete)
+        -d|--delete|-c|--save_current)
             bookmarks="$(c --bash_completion bookmark)"
+            COMPREPLY=( $(compgen -W "${bookmarks}" -- ${cur}) )
+            return 0
             ;;
         *)
             if [[ ${cur:0:1} == "-" ]]; then
                 COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
                 return 0
             else
-                local test="${COMP_WORDS[COMP_CWORD-1]}"
+                local test="${COMP_WORDS[COMP_CWORD-2]}"
                 if [ x"$test" == x"-a" ] || [ x"$test" == x"--add" ] ; then
                     bookmarks="$(c --bash_completion path)"
                 else
@@ -49,7 +51,7 @@ function _c() {
             fi
             ;;
     esac
-    COMPREPLY=( $(compgen -W "${bookmarks}" -- ${cur}) )
+    COMPREPLY=( $(compgen -d -W "${bookmarks}" -- ${cur}) )
 }
 
 complete -o nospace -F _c c
