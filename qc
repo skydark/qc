@@ -219,6 +219,25 @@ class DirBookmark(object):
             history = '\n' + '-' * size + '\n' + history
         return message(bookmark + history)
 
+    def bash_completion(self, need='all'):
+        # assert need in ('add', 'bookmark', 'path', 'all')
+        subpaths = []
+        if need in ('all', 'path', 'add'):
+            subpaths += list(filter(path.isdir, os.listdir('.')))
+        if need in ('all', 'add', 'bookmark'):
+            bookmarks = self.db['bookmarks'].keys()
+            subpaths += bookmarks
+            if need == 'all':
+                subpaths += [',' + v for v in bookmarks]
+        if need in ('all',):
+            histories = list(map(self._get_name_by_path, self.db['history']))
+            subpaths += histories
+            subpaths += ['@' + v for v in histories]
+        subpaths = list(set(subpaths))
+        subpaths.sort()
+        logger.debug(subpaths)
+        return message('\n'.join(subpaths))
+
 
 def get_bookmark(dbpath=None):
     if dbpath is None:
